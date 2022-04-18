@@ -4,6 +4,7 @@ import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import org.springframework.stereotype.Service;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
@@ -18,20 +19,21 @@ import java.util.UUID;
 public interface UserServiceRetro {
 
     @POST("/user/addUser")
-    public Call<Boolean> addUser(@Query("user") User user);
+    public Call<Boolean> addUser(@Body String user);
+
+//    @POST("user/addToVisitedLocations")
+//    public Call<String> addToVisitedLocations(@Query("visitedLocation")VisitedLocation visitedLocation,
+//                                              @Query("userName") String userName);
 
     @POST("user/addToVisitedLocations")
-    public Call<String> addToVisitedLocations(@Query("visitedLocation")VisitedLocation visitedLocation,
+    public Call<String> addToVisitedLocations(@Body String visitedLocation,
                                               @Query("userName") String userName);
 
     @GET("user/getAllCurrentLocations")
     public Call<List<UserLocation>> getAllCurrentLocations();
 
     @POST("user/addUserReward")
-    public Call<Boolean> addUserReward(@Query("userName") String userName,
-                                       @Query("visitedLocation") VisitedLocation visitedLocation,
-                                       @Query("attraction")Attraction attraction,
-                                       @Query("rewardPoints") int rewardPoints);
+    public Call<Boolean> addUserReward(@Body String userAndRewardJson);
 
     @GET("user/getAllUsers")
     public Call<List<User>> getAllUsers();

@@ -45,8 +45,11 @@ public class RewardsService {
 	public String calculateRewardsByUsername(String userName) {
 		logger.debug("calculateRewardsByUsername called");
 
+		System.out.println("SERVICE: Call Retro: getVisitedLocationsByUsername");
 		List<VisitedLocation> userLocations = userRetro.getVisitedLocationsByUsername(userName);
+		System.out.println("SERVICE: Call Retro: getAttractions");
 		List<Attraction> attractions = gpsRetro.getAttractions();
+		System.out.println("SERVICE: Call Retro: getUserIdByUsername");
 		UUID userID = userRetro.getUserIdByUsername(userName);
 
 		logger.debug("userLocations found: " + userLocations.size());

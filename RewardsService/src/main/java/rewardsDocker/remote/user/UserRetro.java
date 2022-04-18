@@ -1,5 +1,7 @@
 package rewardsDocker.remote.user;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import gpsUtil.location.Attraction;
 import gpsUtil.location.VisitedLocation;
 import okhttp3.OkHttpClient;
@@ -11,8 +13,10 @@ import retrofit2.Call;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import rewardsDocker.remote.user.gson.MoneyTypeAdapterFactory;
 import rewardsDocker.remote.user.model.User;
 import rewardsDocker.remote.user.model.UserReward;
+import rewardsDocker.remote.user.model.inputEntities.UserAndReward;
 import rewardsDocker.remote.user.model.outputEntities.UserLocation;
 
 import java.util.List;
@@ -28,22 +32,29 @@ public class UserRetro {
     private String port = "8083";
 
     private Logger logger = LoggerFactory.getLogger(UserRetro.class);
+    private Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MoneyTypeAdapterFactory()).setDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz").setLenient().create();
 
     public boolean addUser(User user) {
         logger.info("addUser called");
 
+        //Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MoneyTypeAdapterFactory()).create();
+        String json = gson.toJson(user);
+        System.out.println(json);
+
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port +"/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
+
         UserServiceRetro userService = retrofit.create(UserServiceRetro.class);
 
-        Call<Boolean> callSync = userService.addUser(user);
+        Call<Boolean> callSync = userService.addUser(json);
 
         try {
+            System.out.println("Call: " + callSync.toString());
             Response<Boolean> response = callSync.execute();
             boolean value = response.body();
             logger.debug("addUser external call completed");
@@ -58,19 +69,23 @@ public class UserRetro {
     public String addToVisitedLocations(VisitedLocation visitedLocation, String userName) {
         logger.info("addToVisitedLocations called");
 
+        //Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MoneyTypeAdapterFactory()).create();
+        String json = gson.toJson(visitedLocation);
+
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
         UserServiceRetro userService = retrofit.create(UserServiceRetro.class);
 
-        Call<String> callSync = userService.addToVisitedLocations(visitedLocation, userName);
+        Call<String> callSync = userService.addToVisitedLocations(json, userName);
 
         try {
             Response<String> response = callSync.execute();
+            //System.out.println(response);
             String value = response.body();
             logger.debug("addToVisitedLocations external call completed");
             return value;
@@ -80,7 +95,7 @@ public class UserRetro {
         }
     }
 
-    public List<UserLocation> getAllCurrentLocations(VisitedLocation visitedLocation, String userName) {
+    public List<UserLocation> getAllCurrentLocations() {
         logger.info("getAllCurrentLocations called");
 
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
@@ -118,7 +133,10 @@ public class UserRetro {
 
         UserServiceRetro userService = retrofit.create(UserServiceRetro.class);
 
-        Call<Boolean> callSync = userService.addUserReward(userName, visitedLocation, attraction, rewardPoints);
+        UserAndReward userAndReward = new UserAndReward(userName, visitedLocation, attraction, rewardPoints);
+
+
+        Call<Boolean> callSync = userService.addUserReward(gson.toJson(userAndReward));
 
         try {
             Response<Boolean> response = callSync.execute();
@@ -134,10 +152,12 @@ public class UserRetro {
     public List<User> getAllUsers() {
         logger.info("getAllUsers called");
 
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MoneyTypeAdapterFactory()).create();
+
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
@@ -149,6 +169,7 @@ public class UserRetro {
             Response<List<User>> response = callSync.execute();
             List<User> value = response.body();
             logger.debug("getAllUsers external call completed");
+            System.out.println(value.size());
             return value;
         } catch (Exception e) {
             logger.error("getAllUsers external call failed: " + e);
@@ -159,10 +180,12 @@ public class UserRetro {
     public User getUserByUsername(String userName) {
         logger.info("getUserByUsername called");
 
+        Gson gson = new GsonBuilder().registerTypeAdapterFactory(new MoneyTypeAdapterFactory()).create();
+
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
@@ -237,7 +260,7 @@ public class UserRetro {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
@@ -248,7 +271,6 @@ public class UserRetro {
         try {
             Response<List<VisitedLocation>> response = callSync.execute();
             List<VisitedLocation> value = response.body();
-            logger.debug("getVisitedLocationsByUsername external call completed");
             return value;
         } catch (Exception e) {
             logger.error("getVisitedLocationsByUsername external call failed: " + e);
