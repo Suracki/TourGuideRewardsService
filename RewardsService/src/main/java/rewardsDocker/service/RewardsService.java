@@ -27,7 +27,7 @@ public class RewardsService {
 	private final GpsRetro gpsRetro;
 	private final RewardCentral rewardsCentral;
 	private final UserRetro userRetro;
-	private ExecutorService executorService = Executors.newFixedThreadPool(10000);
+	private ExecutorService executorService = Executors.newFixedThreadPool(100);
 
 	private Logger logger = LoggerFactory.getLogger(RewardsService.class);
 

@@ -19,6 +19,7 @@ import rewardsDocker.remote.user.model.UserReward;
 import rewardsDocker.remote.user.model.inputEntities.UserAndReward;
 import rewardsDocker.remote.user.model.outputEntities.UserLocation;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -127,7 +128,7 @@ public class UserRetro {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
@@ -235,7 +236,7 @@ public class UserRetro {
         OkHttpClient.Builder httpClient = new OkHttpClient.Builder();
         Retrofit retrofit = new Retrofit.Builder()
                 .baseUrl("http://" + ip + ":" + port + "/")
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create(gson))
                 .client(httpClient.build())
                 .build();
 
@@ -250,7 +251,7 @@ public class UserRetro {
             return value;
         } catch (Exception e) {
             logger.error("getUserRewardsByUsername external call failed: " + e);
-            return null;
+            return new ArrayList<>();
         }
     }
 
